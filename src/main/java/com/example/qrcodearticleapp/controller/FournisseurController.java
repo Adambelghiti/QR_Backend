@@ -3,55 +3,47 @@ package com.example.qrcodearticleapp.controller;
 import com.example.qrcodearticleapp.entity.Fournisseur;
 import com.example.qrcodearticleapp.service.FournisseurService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
-@RequestMapping("/fournisseurs")
+@RestController
+@RequestMapping("/api/fournisseurs")
 public class FournisseurController {
 
     @Autowired
     private FournisseurService fournisseurService;
 
-    @GetMapping
-    public String getAllFournisseurs(Model model) {
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Fournisseur>> getAllFournisseurs() {
         List<Fournisseur> fournisseurs = fournisseurService.getAllFournisseurs();
-        model.addAttribute("fournisseurs", fournisseurs);
-        return "fournisseurs";
+        return ResponseEntity.ok(fournisseurs);
     }
 
-    @GetMapping("/new")
-    public String createFournisseurForm(Model model) {
-        model.addAttribute("fournisseur", new Fournisseur());
-        return "fournisseur-form";
-    }
-
-    @PostMapping
-    public String saveFournisseur(@ModelAttribute Fournisseur fournisseur) {
-        fournisseurService.saveFournisseur(fournisseur);
-        return "redirect:/fournisseurs";
-    }
-
-    @GetMapping("/edit/{id}")
-    public String editFournisseurForm(@PathVariable Long id, Model model) {
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Fournisseur> getFournisseurById(@PathVariable Long id) {
         Fournisseur fournisseur = fournisseurService.getFournisseurById(id);
-        model.addAttribute("fournisseur", fournisseur);
-        return "fournisseur-form";
+        return ResponseEntity.ok(fournisseur);
     }
 
-    @PostMapping("/{id}")
-    public String updateFournisseur(@PathVariable Long id, @ModelAttribute Fournisseur fournisseur) {
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Fournisseur> saveFournisseur(@RequestBody Fournisseur fournisseur) {
+        Fournisseur savedFournisseur = fournisseurService.saveFournisseur(fournisseur);
+        return ResponseEntity.ok(savedFournisseur);
+    }
+
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Fournisseur> updateFournisseur(@PathVariable Long id, @RequestBody Fournisseur fournisseur) {
         fournisseur.setId(id);
-        fournisseurService.saveFournisseur(fournisseur);
-        return "redirect:/fournisseurs";
+        Fournisseur updatedFournisseur = fournisseurService.saveFournisseur(fournisseur);
+        return ResponseEntity.ok(updatedFournisseur);
     }
 
-    @GetMapping("/delete/{id}")
-    public String deleteFournisseur(@PathVariable Long id) {
+    @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> deleteFournisseur(@PathVariable Long id) {
         fournisseurService.deleteFournisseur(id);
-        return "redirect:/fournisseurs";
+        return ResponseEntity.noContent().build();
     }
 }

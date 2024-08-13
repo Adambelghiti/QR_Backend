@@ -1,5 +1,7 @@
 package com.example.qrcodearticleapp.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import java.util.List;
 
@@ -11,6 +13,7 @@ public class Fabricant {
 
     private String name;
 
+    @JsonManagedReference("fabricant-articles")
     @OneToMany(mappedBy = "fabricant")
     private List<Article> articles;
 

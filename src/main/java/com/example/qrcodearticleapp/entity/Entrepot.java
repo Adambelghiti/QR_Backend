@@ -1,6 +1,7 @@
 package com.example.qrcodearticleapp.entity;
 
 import com.example.qrcodearticleapp.entity.Article;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
 import java.util.List;
@@ -15,6 +16,8 @@ public class Entrepot {
     private String location;
 
     @OneToMany(mappedBy = "entrepot")
+    @JsonManagedReference("entrepots-articles")
+
     private List<Article> articles;
 
     public Long getId() {

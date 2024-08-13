@@ -1,5 +1,7 @@
 package com.example.qrcodearticleapp.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import javax.persistence.*;
 
 @Entity
@@ -20,18 +22,22 @@ public class Article {
     @Lob
     private byte[] codeQr;
 
+    @JsonBackReference("entrepots-articles")
     @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinColumn(name = "entrepot_id")
     private Entrepot entrepot;
 
+    @JsonBackReference("fabricant-articles")
     @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinColumn(name = "fabricant_id")
     private Fabricant fabricant;
 
+    @JsonBackReference("fournisseurs-articles")
     @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinColumn(name = "fournisseur_id")
     private Fournisseur fournisseur;
 
+    // Getters and Setters
     public Long getSerialNumber() {
         return serialNumber;
     }
@@ -103,15 +109,6 @@ public class Article {
     public void setFabricant(Fabricant fabricant) {
         this.fabricant = fabricant;
     }
-    public void setFabricantId(Long fabricantId) {
-        if (fabricantId != null) {
-            Fabricant fabricant = new Fabricant();
-            fabricant.setId(fabricantId);
-            this.fabricant = fabricant;
-        } else {
-            this.fabricant = null;
-        }
-    }
 
     public Fournisseur getFournisseur() {
         return fournisseur;
@@ -120,23 +117,4 @@ public class Article {
     public void setFournisseur(Fournisseur fournisseur) {
         this.fournisseur = fournisseur;
     }
-    public void setFournisseurId(Long fournisseurId) {
-        if (fournisseurId != null) {
-            Fournisseur fournisseur = new Fournisseur();
-            fournisseur.setId(fournisseurId);
-            this.fournisseur = fournisseur;
-        } else {
-            this.fournisseur = null;
-        }
-    }
-    public void setEntrepotId(Long entrepotId) {
-        if (entrepotId != null) {
-            Entrepot entrepot = new Entrepot();
-            entrepot.setId(entrepotId);
-            this.entrepot = entrepot;
-        } else {
-            this.entrepot = null;
-        }
-    }
-
 }

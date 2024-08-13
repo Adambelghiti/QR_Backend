@@ -1,57 +1,47 @@
 package com.example.qrcodearticleapp.controller;
 
 import com.example.qrcodearticleapp.entity.Entrepot;
-import com.example.qrcodearticleapp.service.EntrepotService;
+import com.example.qrcodearticleapp.repository.EntrepotRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
-@RequestMapping("/entrepots")
+@RestController
+@RequestMapping("/api/entrepots")
 public class EntrepotController {
 
     @Autowired
-    private EntrepotService entrepotService;
+    private EntrepotRepository entrepotRepository;
 
     @GetMapping
-    public String getAllEntrepots(Model model) {
-        List<Entrepot> entrepots = entrepotService.getAllEntrepots();
-        model.addAttribute("entrepots", entrepots);
-        return "entrepots";
+    public List<Entrepot> getAllEntrepots() {
+        return entrepotRepository.findAll();
     }
 
-    @GetMapping("/new")
-    public String createEntrepotForm(Model model) {
-        model.addAttribute("entrepot", new Entrepot());
-        return "entrepot-form";
+    @GetMapping("/{id}")
+    public Entrepot getEntrepotById(@PathVariable Long id) {
+        return entrepotRepository.findById(id).orElse(null);
     }
 
     @PostMapping
-    public String saveEntrepot(@ModelAttribute Entrepot entrepot) {
-        entrepotService.saveEntrepot(entrepot);
-        return "redirect:/entrepots";
+    public Entrepot saveEntrepot(@RequestBody Entrepot entrepot) {
+        return entrepotRepository.save(entrepot);
     }
 
-    @GetMapping("/edit/{id}")
-    public String editEntrepotForm(@PathVariable Long id, Model model) {
-        Entrepot entrepot = entrepotService.getEntrepotById(id);
-        model.addAttribute("entrepot", entrepot);
-        return "entrepot-form";
-    }
-
-    @PostMapping("/{id}")
-    public String updateEntrepot(@PathVariable Long id, @ModelAttribute Entrepot entrepot) {
+    @PutMapping("/{id}")
+    public Entrepot updateEntrepot(@PathVariable Long id, @RequestBody Entrepot entrepot) {
+        if (!entrepotRepository.existsById(id)) {
+            return null;
+        }
         entrepot.setId(id);
-        entrepotService.saveEntrepot(entrepot);
-        return "redirect:/entrepots";
+        return entrepotRepository.save(entrepot);
     }
 
-    @GetMapping("/delete/{id}")
-    public String deleteEntrepot(@PathVariable Long id) {
-        entrepotService.deleteEntrepot(id);
-        return "redirect:/entrepots";
+    @DeleteMapping("/{id}")
+    public void deleteEntrepot(@PathVariable Long id) {
+        if (entrepotRepository.existsById(id)) {
+            entrepotRepository.deleteById(id);
+        }
     }
 }

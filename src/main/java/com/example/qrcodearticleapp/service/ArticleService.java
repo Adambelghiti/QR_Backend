@@ -13,6 +13,7 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
@@ -41,31 +42,47 @@ public class ArticleService {
         return articleRepository.findById(id).orElse(null);
     }
 
+    @Transactional
     public Article saveArticle(Article article) {
         // Ensure related entities are saved or fetched from the database
-        if (article.getEntrepot() != null && article.getEntrepot().getId() != null) {
-            article.setEntrepot(entrepotRepository.findById(article.getEntrepot().getId()).orElse(null));
+        if (article.getEntrepot() != null) {
+            article.setEntrepot(entrepotRepository.findById(article.getEntrepot().getId()).orElse(article.getEntrepot()));
         }
-        if (article.getFabricant() != null && article.getFabricant().getId() != null) {
-            article.setFabricant(fabricantRepository.findById(article.getFabricant().getId()).orElse(null));
+        if (article.getFabricant() != null) {
+            article.setFabricant(fabricantRepository.findById(article.getFabricant().getId()).orElse(article.getFabricant()));
         }
-        if (article.getFournisseur() != null && article.getFournisseur().getId() != null) {
-            article.setFournisseur(fournisseurRepository.findById(article.getFournisseur().getId()).orElse(null));
+        if (article.getFournisseur() != null) {
+            article.setFournisseur(fournisseurRepository.findById(article.getFournisseur().getId()).orElse(article.getFournisseur()));
         }
 
-        // Generate QR code with full information
-        String qrContent = String.format("ID: %d, Name: %s, Length: %s, Width: %s, Height: %s, Category: %s, Warehouse: %s, Manufacturer: %s, Supplier: %s",
-                article.getSerialNumber(),
+        // Generate QR code with full information (remove serial number if not required)
+        String qrContent = String.format("Name: %s, Length: %s, Width: %s, Height: %s, Category: %s, Warehouse: %s, Manufacturer: %s, Supplier: %s",
                 article.getNom(),
                 article.getLongueur(),
                 article.getLargeur(),
                 article.getHauteur(),
                 article.getCategorie(),
-                article.getEntrepot() != null ? article.getEntrepot().getNom() : "N/A",
-                article.getFabricant() != null ? article.getFabricant().getName() : "N/A",
-                article.getFournisseur() != null ? article.getFournisseur().getName() : "N/A"
+                article.getEntrepot(),
+                article.getFabricant(),
+                article.getFournisseur()
         );
         article.setCodeQr(generateQRCode(qrContent));
+        System.out.println("Article Details:");
+        System.out.println("  Nom: " + article.getNom());
+        System.out.println("  Longueur: " + article.getLongueur());
+        System.out.println("  Largeur: " + article.getLargeur());
+        System.out.println("  Hauteur: " + article.getHauteur());
+        System.out.println("  Categorie: " + article.getCategorie());
+
+        System.out.println("  Entrepot:");
+        System.out.println("    Nom: " + article.getEntrepot().getNom());
+        System.out.println("    Location: " + article.getEntrepot().getLocation());
+
+        System.out.println("  Fabricant:");
+        System.out.println("    Name: " + article.getFabricant().getName());
+
+        System.out.println("  Fournisseur:");
+        System.out.println("    Name: " + article.getFournisseur().getName());
         return articleRepository.save(article);
     }
 
